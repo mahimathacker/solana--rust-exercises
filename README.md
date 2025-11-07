@@ -66,12 +66,12 @@
         - `Accounts`
 
 # Oracle
-- Native
-- Anchor
+- [ ] [Native](./apps/oracle/native)
+- [ ] [Anchor](./apps/oracle/anchor)
 
 # Piggy bank - PDA
-- Native
-- Anchor
+- [ ] [Native](./apps/piggy-bank/native)
+- [ ] [Anchor](./apps/piggy-bank/anchor)
 
 # Dutch auction ? - Token
 - CLI
@@ -79,8 +79,8 @@
 - Anchor
 
 # AMM
-- Native
-- Anchor
+- [ ] [Native](./apps/amm/native)
+- [ ] [Anchor](./apps/amm/anchor)
 
 # Wormhole
 
@@ -90,6 +90,7 @@
 - [GitHub - Anchor](https://github.com/solana-foundation/anchor)
 - [Anchor doc](https://www.anchor-lang.com/docs)
 - [GitHub - solana-developers/program-examples](https://github.com/solana-developers/program-examples)
+- [GitHub - litesvm](https://github.com/LiteSVM/litesvm)
 - [Solana explorer](https://explorer.solana.com/)
 - [crates.io](https://crates.io/)
 - [Solana playground](https://beta.solpg.io/)
