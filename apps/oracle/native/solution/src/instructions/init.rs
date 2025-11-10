@@ -17,6 +17,12 @@ pub fn init(
 
     let mut data = oracle_account.data.borrow_mut();
     let mut oracle = Oracle::try_from_slice(&data)?;
+
+    // Check oracle account is not initialized
+    if oracle.owner != Pubkey::default() {
+        return Err(ProgramError::AccountAlreadyInitialized);
+    }
+
     oracle.owner = owner;
     oracle.price = price;
     oracle.serialize(&mut &mut data[..])?;
