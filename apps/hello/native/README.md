@@ -39,7 +39,7 @@ solana program deploy ./target/deploy/hello.so
 Execute demo script
 ```shell
 PROGRAM_ID=your program ID
-RPC=https://api.devnet.solana.com
+RPC=http://localhost:8899
 KEYPAIR=path to key pair
 
 cargo run --example demo $KEYPAIR $RPC $PROGRAM_ID

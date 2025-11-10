@@ -67,6 +67,9 @@
 
 # Oracle
 - [ ] [Native](./apps/oracle/native)
+    - Program owns oracle account
+    - Program owns oracle account
+    - Order of account is important
 - [ ] [Anchor](./apps/oracle/anchor)
 
 # Piggy bank - PDA

@@ -1,16 +1,19 @@
-use solana_client::{rpc_client::RpcClient, rpc_config::RpcTransactionConfig};
+use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
     commitment_config::CommitmentConfig,
-    instruction::Instruction,
+    instruction::{AccountMeta, Instruction},
     pubkey::Pubkey,
     signature::{Keypair, Signer, read_keypair_file},
+    signer::keypair::keypair_from_seed,
+    system_instruction,
     transaction::Transaction,
-};
-use solana_transaction_status_client_types::{
-    UiTransactionEncoding, option_serializer::OptionSerializer,
 };
 use std::path::PathBuf;
 use std::str::FromStr;
+
+use borsh::BorshDeserialize;
+use oracle::Cmd;
+use oracle::state::Oracle;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -51,43 +54,105 @@ fn main() {
         println!("Airdrop confirmed");
     }
 
-    // Create the instruction
-    let ix = Instruction::new_with_borsh(
-        program_id,
-        &(),    // Empty instruction data
-        vec![], // No accounts needed
+    // Create Oracle account, owned by the Oracle program if it doesn't exist
+    // let seed = [1u8; 32];
+    // let oracle_account = keypair_from_seed(&seed).unwrap();
+    let oracle_account = Keypair::new();
+
+    // 32 + 8
+    let space = 40;
+    let lamports = client
+        .get_minimum_balance_for_rent_exemption(space)
+        .unwrap();
+
+    let create_account_ix = system_instruction::create_account(
+        &payer.pubkey(),
+        &oracle_account.pubkey(),
+        lamports,
+        space as u64,
+        &program_id,
     );
 
-    // Sign and send transaction
+    let mut tx = Transaction::new_with_payer(
+        &[create_account_ix],
+        Some(&payer.pubkey()),
+    );
+
+    let blockhash = client.get_latest_blockhash().expect("blockhash");
+    tx.sign(&[&payer, &oracle_account], blockhash);
+
+    let res = client.send_and_confirm_transaction(&tx);
+    match res {
+        Ok(_) => println!("Created Oracle account {}", oracle_account.pubkey()),
+        Err(err) => println!("Err creating coutner account: {:#?}", err),
+    }
+
+    // Initialize
+    let cmd = Cmd::Init(payer.pubkey(), 1);
+
+    let ix = Instruction::new_with_borsh(
+        program_id,
+        &cmd,
+        vec![AccountMeta {
+            pubkey: oracle_account.pubkey(),
+            is_signer: false,
+            is_writable: true,
+        }],
+    );
+
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     tx.sign(&[&payer], client.get_latest_blockhash().unwrap());
 
-    let sig = client.send_and_confirm_transaction(&tx).unwrap();
-
-    println!("Transaction signature: {}", sig);
-
-    // Fetch transaction details with logs
-    let tx_info = client
-        .get_transaction_with_config(
-            &sig,
-            RpcTransactionConfig {
-                encoding: Some(UiTransactionEncoding::Json),
-                commitment: Some(CommitmentConfig::confirmed()),
-                max_supported_transaction_version: Some(0),
-            },
-        )
-        .expect("Failed to get transaction info");
-
-    if let Some(meta) = tx_info.transaction.meta {
-        if let OptionSerializer::Some(logs) = meta.log_messages {
-            println!("--- Transaction Logs ---");
-            for (i, log) in logs.iter().enumerate() {
-                println!("{i}: {}", log);
-            }
-        } else {
-            println!("No logs");
-        }
-    } else {
-        println!("Transaction metadata not found");
+    match client.send_and_confirm_transaction(&tx) {
+        Ok(sig) => println!("Transaction signature: {}", sig),
+        Err(err) => eprintln!("Error sending transaction: {}", err),
     }
+
+    let data = client
+        .get_account_data(&oracle_account.pubkey())
+        .expect("Failed to fetch account data");
+
+    let oracle_data =
+        Oracle::try_from_slice(&data).expect("Failed to deserialize");
+
+    println!("oracle.owner: {:?}", oracle_data.owner);
+    println!("oracle.price: {:?}", oracle_data.price);
+
+    // Update
+    let cmd = Cmd::Update(2); // set initial price to 0
+
+    let ix = Instruction::new_with_borsh(
+        program_id,
+        &cmd,
+        vec![
+            AccountMeta {
+                pubkey: oracle_account.pubkey(),
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: payer.pubkey(),
+                is_signer: true,
+                is_writable: true,
+            },
+        ],
+    );
+
+    let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
+    tx.sign(&[&payer], client.get_latest_blockhash().unwrap());
+
+    match client.send_and_confirm_transaction(&tx) {
+        Ok(sig) => println!("Transaction signature: {}", sig),
+        Err(err) => eprintln!("Error sending transaction: {}", err),
+    }
+
+    let data = client
+        .get_account_data(&oracle_account.pubkey())
+        .expect("Failed to fetch account data");
+
+    let oracle_data =
+        Oracle::try_from_slice(&data).expect("Failed to deserialize");
+
+    println!("oracle.owner: {:?}", oracle_data.owner);
+    println!("oracle.price: {:?}", oracle_data.price);
 }
