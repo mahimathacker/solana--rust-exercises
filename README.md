@@ -29,7 +29,9 @@
     - data
     - lamports
     - owner
-    - rent
+    - Keypair must prove existence of keypair before sending transaction to create account, receive SOL, etc
+    - Rent
+        - Data must be empty if SOL = 0
 - Programs
     - program id - how is it derived?
     - Private key needed for upgrade
@@ -84,6 +86,11 @@
 
 # Piggy bank - PDA
 - [ ] [Native](./apps/piggy-bank/native)
+    - Calculate PDA before PDA is initialized
+    - Create PDA
+    - Transfer SOL
+    - Manually send SOL
+    - Account data must be empty when account has 0 SOL
 - [ ] [Anchor](./apps/piggy-bank/anchor)
 
 # Dutch auction ? - Token
@@ -104,6 +111,7 @@
 - [Anchor doc](https://www.anchor-lang.com/docs)
 - [GitHub - solana-developers/program-examples](https://github.com/solana-developers/program-examples)
 - [GitHub - litesvm](https://github.com/LiteSVM/litesvm)
+- [docs.rs - litesvm](https://docs.rs/litesvm/latest/litesvm/)
 - [Solana explorer](https://explorer.solana.com/)
 - [crates.io](https://crates.io/)
 - [Solana playground](https://beta.solpg.io/)
