@@ -12,11 +12,13 @@ Complete all tasks below
 
 - Check that `oracle_account` is not initialized
 - Store the `owner` and `price` into `oracle_account`
+- Call `instuctions::init` inside `lib.rs`
 
 # Task 2 - Implement [`instructions::update`](https://github.com/Cyfrin/solana-course/blob/main/apps/oracle/native/exercise/src/instructions/update.rs)
 
--  Check that the `oracle.owner` signed this instruction to update the price
+- Check that the `oracle.owner` signed this instruction to update the price
 - Update the price
+- Call `instuctions::update` inside `lib.rs`
 
 # Build
 

@@ -46,6 +46,8 @@ let mut data = pda.data.borrow_mut();
 let lock = Lock { dst, exp };
 lock.serialize(&mut &mut data[..])?;
 ```
+- Call `instuctions::lock` inside `lib.rs`
+
 
 # Task 2 - Implement [`instructions::unlock`](https://github.com/Cyfrin/solana-course/blob/main/apps/piggy/native/exercise/src/instructions/unlock.rs)
 - Check that the given account key matches expected PDA
@@ -75,6 +77,7 @@ pda.resize(0)?;
 ```rust
 pda.assign(sys_program.key);
 ```
+- Call `instuctions::unlock` inside `lib.rs`
 
 # Build
 
