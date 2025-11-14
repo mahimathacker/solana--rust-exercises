@@ -6,4 +6,4 @@ edition = "2021"
 
 [dependencies]
 anchor-client = "0.31.1"
-auction = { version = "0.1.0", path = "../programs/piggy" }
+auction = { version = "0.1.0", path = "../programs/auction" }
