@@ -34,13 +34,13 @@ pub mod auction {
         Ok(())
     }
 
-    pub fn buy(ctx: Context<Buy>) -> Result<()> {
-        // instructions::buy(ctx)?;
+    pub fn buy(ctx: Context<Buy>, max_price: u64) -> Result<()> {
+        instructions::buy(ctx, max_price)?;
         Ok(())
     }
 
     pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
-        // instructions::cancel(ctx)?;
+        instructions::cancel(ctx)?;
         Ok(())
     }
 }

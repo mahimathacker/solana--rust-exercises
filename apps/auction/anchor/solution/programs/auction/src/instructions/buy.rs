@@ -67,7 +67,7 @@ pub struct Buy<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn buy(ctx: Context<Buy>) -> Result<()> {
+pub fn buy(ctx: Context<Buy>, max_price: u64) -> Result<()> {
     let clock = Clock::get()?;
     let now = u64::try_from(clock.unix_timestamp).unwrap();
 
@@ -86,6 +86,8 @@ pub fn buy(ctx: Context<Buy>) -> Result<()> {
         price >= auction.end_price,
         error::Error::InvalidCurrentPrice
     );
+
+    require!(price <= max_price, error::Error::MaxPrice);
 
     // Calculate amount of buy token to send to seller
     let sell_amt = ctx.accounts.auction_sell_ata.amount;

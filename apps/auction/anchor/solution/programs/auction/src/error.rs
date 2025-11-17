@@ -18,4 +18,6 @@ pub enum Error {
     AuctionEnded,
     #[msg("Invalid current price")]
     InvalidCurrentPrice,
+    #[msg("Max price")]
+    MaxPrice,
 }
