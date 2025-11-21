@@ -21,12 +21,14 @@ pub fn update(
         return Err(ProgramError::MissingRequiredSignature);
     }
 
+    /*
     if auction.owner != *signer.key {
         return Err(ProgramError::IllegalOwner);
     }
 
     auction.price = price;
     auction.serialize(&mut &mut data[..])?;
+    */
 
     Ok(())
 }

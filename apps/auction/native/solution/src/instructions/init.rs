@@ -1,11 +1,12 @@
-use borsh::{BorshDeserialize, BorshSerialize};
+use borsh::BorshSerialize;
 use solana_program::{
     account_info::{AccountInfo, next_account_info},
     program_error::ProgramError,
     pubkey::Pubkey,
+    sysvar::{Sysvar, clock::Clock},
 };
 
-use super::lib::get_pda;
+use super::lib::{get_ata, get_pda, transfer};
 use crate::state::Auction;
 
 pub fn init(
@@ -27,7 +28,7 @@ pub fn init(
     let auction_pda = next_account_info(account_iter)?;
     let auction_sell_ata = next_account_info(account_iter)?;
     let seller_sell_ata = next_account_info(account_iter)?;
-    let seller_sell_buy = next_account_info(account_iter)?;
+    let seller_buy_ata = next_account_info(account_iter)?;
     let token_program = next_account_info(account_iter)?;
     let ata_program = next_account_info(account_iter)?;
     let sys_program = next_account_info(account_iter)?;
@@ -37,15 +38,57 @@ pub fn init(
     if !payer.is_signer {
         return Err(ProgramError::MissingRequiredSignature);
     }
-
-    // Check that the given account key matches expected PDA
+    // Check that auction_pda matches expected PDA
     if *auction_pda.key
         != get_pda(program_id, payer.key, &mint_sell.key, &mint_buy.key, bump)?
     {
         return Err(ProgramError::InvalidSeeds);
     }
+    // Create auction_sell_ata check calculated matches
+    if *auction_sell_ata.key != get_ata(auction_pda.key, mint_sell.key) {
+        return Err(ProgramError::InvalidArgument);
+    }
+    // Create seller_sell_ata check calculated matches
+    if *seller_sell_ata.key != get_ata(payer.key, mint_sell.key) {
+        return Err(ProgramError::InvalidArgument);
+    }
+    // Create seller_buy_ata check calculated matches
+    if *seller_buy_ata.key != get_ata(payer.key, mint_buy.key) {
+        return Err(ProgramError::InvalidArgument);
+    }
+    // Check sell token != buy token
+    if *mint_sell.key == *mint_buy.key {
+        return Err(ProgramError::InvalidArgument);
+    }
+    // Check start_price >= end_price
+    if start_price < end_price {
+        return Err(ProgramError::InvalidArgument);
+    }
+    // Check now <= start_time < end_time
+    let clock = Clock::get()?;
+    let now: u64 = clock.unix_timestamp.try_into().unwrap();
+    if (start_time < now) || (end_time <= start_time) {
+        return Err(ProgramError::InvalidArgument);
+    }
+    // Check sell_amt > 0
+    if sell_amt == 0 {
+        return Err(ProgramError::InvalidArgument);
+    }
 
-    // Create auction sell ata, check calculated matches
+    // Send sell token to auction_sell_ata
+    transfer(&token_program, &payer, &auction_sell_ata, &payer, sell_amt)?;
+
+    // Store Auction state
+    let mut data = auction_pda.data.borrow_mut();
+    let auction = Auction {
+        mint_sell: *mint_sell.key,
+        mint_buy: *mint_buy.key,
+        start_price,
+        end_price,
+        start_time,
+        end_time,
+    };
+    auction.serialize(&mut &mut data[..])?;
 
     Ok(())
 }

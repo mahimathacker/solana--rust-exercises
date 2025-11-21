@@ -1,4 +1,15 @@
+use solana_address::Address;
+use solana_program::entrypoint::ProgramResult;
 use solana_program::pubkey::{Pubkey, PubkeyError};
+use solana_program::{account_info::AccountInfo, program_error::ProgramError};
+use solana_program::{
+    instruction::{AccountMeta, Instruction},
+    program::invoke,
+};
+use spl_associated_token_account_interface as spl_ata;
+use spl_token_interface;
+
+use crate::state::Auction;
 
 pub fn get_pda(
     program_id: &Pubkey,
@@ -9,7 +20,7 @@ pub fn get_pda(
 ) -> Result<Pubkey, PubkeyError> {
     Pubkey::create_program_address(
         &[
-            b"auction",
+            Auction::SEED_PREFIX,
             seller.as_ref(),
             mint_sell.as_ref(),
             mint_buy.as_ref(),
@@ -18,14 +29,6 @@ pub fn get_pda(
         program_id,
     )
 }
-
-use solana_address::Address;
-use solana_program::{account_info::AccountInfo, program_error::ProgramError};
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    program::invoke,
-};
-use spl_associated_token_account_interface as spl_ata;
 
 fn create_ata<'a>(
     payer: &AccountInfo<'a>,
@@ -74,4 +77,56 @@ fn create_ata<'a>(
     )?;
 
     Ok(())
+}
+
+pub fn get_ata(wallet: &Pubkey, mint: &Pubkey) -> Pubkey {
+    let addr = spl_ata::address::get_associated_token_address(
+        &Address::from(wallet.to_bytes()),
+        &Address::from(mint.to_bytes()),
+    );
+    Pubkey::from(addr.to_bytes())
+}
+
+pub fn transfer<'a>(
+    token_program: &AccountInfo<'a>,
+    src: &AccountInfo<'a>,
+    dst: &AccountInfo<'a>,
+    // Transfer authority
+    auth: &AccountInfo<'a>,
+    amount: u64,
+) -> ProgramResult {
+    let spl_ix = spl_token_interface::instruction::transfer(
+        &Address::from(token_program.key.to_bytes()),
+        &Address::from(src.key.to_bytes()),
+        &Address::from(dst.key.to_bytes()),
+        &Address::from(auth.key.to_bytes()),
+        // Signer pubkeys
+        &[],
+        amount,
+    )
+    .map_err(|_| ProgramError::InvalidInstructionData)?;
+
+    let ix = Instruction {
+        program_id: Pubkey::from(spl_ix.program_id.to_bytes()),
+        accounts: spl_ix
+            .accounts
+            .iter()
+            .map(|acc| AccountMeta {
+                pubkey: Pubkey::from(acc.pubkey.to_bytes()),
+                is_signer: acc.is_signer,
+                is_writable: acc.is_writable,
+            })
+            .collect(),
+        data: spl_ix.data,
+    };
+
+    invoke(
+        &ix,
+        &[
+            src.clone(),
+            dst.clone(),
+            auth.clone(),
+            token_program.clone(),
+        ],
+    )
 }
