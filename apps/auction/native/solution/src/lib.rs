@@ -58,8 +58,12 @@ pub fn process_instruction(
                 bump,
             )?;
         }
-        Cmd::Buy { max_price, bump } => {}
-        Cmd::Cancel { bump } => {}
+        Cmd::Buy { max_price, bump } => {
+            instructions::buy(program_id, accounts, max_price, bump)?;
+        }
+        Cmd::Cancel { bump } => {
+            instructions::cancel(program_id, accounts, bump)?;
+        }
     }
 
     Ok(())

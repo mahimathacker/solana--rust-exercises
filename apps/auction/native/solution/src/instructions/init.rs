@@ -40,7 +40,7 @@ pub fn init(
     }
     // Check that auction_pda matches expected PDA
     if *auction_pda.key
-        != get_pda(program_id, payer.key, &mint_sell.key, &mint_buy.key, bump)?
+        != get_pda(program_id, payer.key, mint_sell.key, mint_buy.key, bump)?
     {
         return Err(ProgramError::InvalidSeeds);
     }
@@ -88,7 +88,7 @@ pub fn init(
     )?;
 
     // Send sell token to auction_sell_ata
-    transfer(&token_program, &payer, &auction_sell_ata, &payer, sell_amt)?;
+    transfer(token_program, payer, auction_sell_ata, payer, sell_amt)?;
 
     // Store Auction state
     let mut data = auction_pda.data.borrow_mut();
