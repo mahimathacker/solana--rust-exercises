@@ -86,7 +86,6 @@ pub fn buy(
     assert!(price <= max_price, "price > max");
 
     // Calculate amount of buy token to send to seller
-    // let sell_amt = ctx.accounts.auction_sell_ata.amount;
     let sell_amt = get_token_balance(auction_sell_ata)?;
     let buy_amt = sell_amt * price / (1e6 as u64);
 
