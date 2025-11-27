@@ -1,19 +1,11 @@
-use borsh::{BorshDeserialize, BorshSerialize};
-use solana_address::Address;
+use borsh::BorshDeserialize;
 use solana_program::{
     account_info::{AccountInfo, next_account_info},
     entrypoint::ProgramResult,
-    msg,
-    program::invoke_signed,
     program_error::ProgramError,
     pubkey::Pubkey,
 };
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    program::invoke,
-};
 use solana_program_pack::Pack;
-use spl_associated_token_account_interface as spl_ata;
 use spl_token_interface;
 
 use super::lib;
@@ -47,16 +39,14 @@ pub fn add_liquidity(
     let rent_sysvar = next_account_info(accounts_iter)?;
 
     // Verify payer is signer
-    if !payer.is_signer {
-        return Err(ProgramError::MissingRequiredSignature);
-    }
+    assert!(payer.is_signer, "payer not signer");
 
-    // Verify pool PDA
+    // Verify provided pool PDA matches the one calculated by lib::get_pool_pda
     let expected_pool =
         lib::get_pool_pda(program_id, mint_a.key, mint_b.key, fee, pool_bump)?;
     assert!(*pool.key == expected_pool, "Invalid pool PDA");
 
-    // Verify mint_pool PDA
+    // Verify provided mint_pool PDA matches the one calculated by lib::get_mint_pool_pda
     let expected_mint_pool = lib::get_mint_pool_pda(
         program_id,
         mint_a.key,
@@ -69,20 +59,18 @@ pub fn add_liquidity(
         "Invalid mint_pool PDA"
     );
 
-    // Deserialize and verify pool state
+    // Get Pool state
     let pool_state = {
         let pool_data = pool.data.borrow();
         Pool::try_from_slice(&pool_data)?
     };
 
-    if pool_state.mint_a != *mint_a.key {
-        return Err(ProgramError::InvalidAccountData);
-    }
-    if pool_state.mint_b != *mint_b.key {
-        return Err(ProgramError::InvalidAccountData);
-    }
+    // Verify Pool state mint_a = mint_a from accounts_iter
+    assert!(pool_state.mint_a == *mint_a.key, "Invalid mint_a");
+    // Verify Pool state mint_b = mint_b from accounts_iter
+    assert!(pool_state.mint_b == *mint_b.key, "Invalid mint_b");
 
-    // Deserialize token accounts to get amounts
+    // Get pool_a and pool_b amounts
     let pool_a_account = {
         let pool_a_data = pool_a.data.borrow();
         spl_token_interface::state::Account::unpack(&pool_a_data).unwrap()
@@ -95,13 +83,14 @@ pub fn add_liquidity(
     };
     let pool_b_amount = pool_b_account.amount;
 
+    // Get mint_pool supply
     let mint_pool_account = {
         let mint_pool_data = mint_pool.data.borrow();
         spl_token_interface::state::Mint::unpack(&mint_pool_data).unwrap()
     };
     let supply = mint_pool_account.supply;
 
-    // Calculate shares
+    // Calculate shares to mint
     let user_liquidity = amount_a
         .checked_add(amount_b)
         .ok_or(ProgramError::ArithmeticOverflow)?;
@@ -120,6 +109,7 @@ pub fn add_liquidity(
         user_liquidity
     };
 
+    // Initialize payer_account_liquidity (associated token account for mint_pool owned by payer) if not initialized.
     if payer_account_liquidity.lamports() == 0 {
         lib::create_ata(
             payer,
@@ -133,10 +123,12 @@ pub fn add_liquidity(
         )?;
     }
 
+    // Transfer mint_a from payer to pool_a
     if amount_a > 0 {
         lib::transfer(token_program, payer_account_a, pool_a, payer, amount_a)?;
     }
 
+    // Transfer mint_b from payer to pool_b
     if amount_b > 0 {
         lib::transfer(token_program, payer_account_b, pool_b, payer, amount_b)?;
     }

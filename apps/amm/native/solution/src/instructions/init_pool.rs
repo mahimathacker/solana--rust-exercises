@@ -21,9 +21,10 @@ pub fn init(
     accounts: &[AccountInfo],
     fee: u16,
     pool_bump: u8,
-    mint_pool_bump: u8, // Added parameter
+    mint_pool_bump: u8,
 ) -> Result<(), ProgramError> {
     let accounts_iter = &mut accounts.iter();
+
     let payer = next_account_info(accounts_iter)?;
     let pool = next_account_info(accounts_iter)?;
     let mint_a = next_account_info(accounts_iter)?;
@@ -36,24 +37,27 @@ pub fn init(
     let sys_program = next_account_info(accounts_iter)?;
     let rent_sysvar = next_account_info(accounts_iter)?;
 
-    // Check token decimals
+    // Verify payer is signer
+    assert!(payer.is_signer, "payer not signer");
+
+    // Check token decimals are equal
     assert!(
         lib::get_decimals(mint_a) == lib::get_decimals(mint_b),
         "decimals mismatch"
     );
 
-    // Verify accounts are not initialized
+    // Verify pool, pool_a, pool_b and mint_pool accounts are not initialized
     assert!(pool.lamports() == 0, "pool already initialized");
     assert!(pool_a.lamports() == 0, "pool_a already initialized");
     assert!(pool_b.lamports() == 0, "pool_b already initialized");
     assert!(mint_pool.lamports() == 0, "mint_pool already initialized");
 
-    // Verify pool PDA
+    // Verify provided pool PDA matches the one calculated by lib::get_pool_pda
     let expected_pool =
         lib::get_pool_pda(program_id, mint_a.key, mint_b.key, fee, pool_bump)?;
     assert!(*pool.key == expected_pool, "Invalid pool PDA");
 
-    // Verify mint_pool PDA
+    // Verify provided mint_pool PDA matches the one calculated by lib::get_mint_pool_pda
     let expected_mint_pool = lib::get_mint_pool_pda(
         program_id,
         mint_a.key,

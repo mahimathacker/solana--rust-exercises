@@ -229,7 +229,7 @@ pub fn transfer<'a>(
     )
 }
 
-pub fn transfer_from_pda<'a>(
+pub fn transfer_from_pool<'a>(
     token_program: &AccountInfo<'a>,
     src: &AccountInfo<'a>,
     dst: &AccountInfo<'a>,
@@ -278,6 +278,7 @@ pub fn mint_to<'a>(
     token_program: &AccountInfo<'a>,
     mint: &AccountInfo<'a>,
     to: &AccountInfo<'a>,
+    // Mint authority
     auth: &AccountInfo<'a>,
     amount: u64,
     signer_seeds: &[&[u8]],
@@ -315,6 +316,49 @@ pub fn mint_to<'a>(
             token_program.clone(),
         ],
         &[signer_seeds],
+    )
+}
+
+pub fn burn<'a>(
+    token_program: &AccountInfo<'a>,
+    mint: &AccountInfo<'a>,
+    src: &AccountInfo<'a>,
+    // Burn authority
+    auth: &AccountInfo<'a>,
+    amount: u64,
+) -> ProgramResult {
+    let spl_ix = spl_token_interface::instruction::burn(
+        &Address::from(token_program.key.to_bytes()),
+        &Address::from(src.key.to_bytes()),
+        &Address::from(mint.key.to_bytes()),
+        &Address::from(auth.key.to_bytes()),
+        &[],
+        amount,
+    )
+    .map_err(|_| ProgramError::InvalidInstructionData)?;
+
+    let ix = Instruction {
+        program_id: Pubkey::from(spl_ix.program_id.to_bytes()),
+        accounts: spl_ix
+            .accounts
+            .iter()
+            .map(|acc| AccountMeta {
+                pubkey: Pubkey::from(acc.pubkey.to_bytes()),
+                is_signer: acc.is_signer,
+                is_writable: acc.is_writable,
+            })
+            .collect(),
+        data: spl_ix.data,
+    };
+
+    invoke(
+        &ix,
+        &[
+            src.clone(),
+            mint.clone(),
+            auth.clone(),
+            token_program.clone(),
+        ],
     )
 }
 
