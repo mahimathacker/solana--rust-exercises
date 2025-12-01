@@ -1,0 +1,20 @@
+[toolchain]
+package_manager = "yarn"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+counter = "6n5mmdpDHxuyZBkju2cQvrhnfhmQxMemXAss45oJYqW9"
+factory = "9WUK6RjaUJ2tY5ymQiKHtoXHX1B63F2XfcHbm6FShBGc"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "cargo test"
