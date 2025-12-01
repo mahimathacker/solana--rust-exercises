@@ -25,8 +25,6 @@ fn test() {
     let counter_program = client.program(counter::ID).unwrap();
     let factory_program = client.program(factory::ID).unwrap();
 
-    println!("HERE");
-
     // Init
     let counter_account = Keypair::new();
 
@@ -43,10 +41,24 @@ fn test() {
         .args(factory::instruction::Init {})
         .send();
 
-    println!("HERE {:?}", res);
+    let counter_state: counter::Counter =
+        counter_program.account(counter_account.pubkey()).unwrap();
+
+    assert_eq!(counter_state.count, 0);
+
+    // Increment
+    let res = factory_program
+        .request()
+        .accounts(factory::accounts::Inc {
+            counter: counter_account.pubkey(),
+            counter_program: counter::ID,
+        })
+        .signer(&payer)
+        .args(factory::instruction::Inc {})
+        .send();
 
     let counter_state: counter::Counter =
         counter_program.account(counter_account.pubkey()).unwrap();
 
-    println!("STATE {:?}", counter_state);
+    assert_eq!(counter_state.count, 1);
 }
