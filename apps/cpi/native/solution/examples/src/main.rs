@@ -1,6 +1,4 @@
-use solana_address::Address;
 use solana_client::rpc_client::RpcClient;
-use solana_program_pack::Pack;
 use solana_sdk::{
     commitment_config::CommitmentConfig,
     instruction::{AccountMeta, Instruction},
@@ -16,7 +14,6 @@ use std::time::Duration;
 
 use borsh::BorshDeserialize;
 use counter::Counter;
-use factory::Cmd;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -33,7 +30,7 @@ fn main() {
     let factory_program_id =
         Pubkey::from_str(&args[3]).expect("Invalid factory program ID");
     let counter_program_id =
-        Pubkey::from_str(&args[3]).expect("Invalid counter program ID");
+        Pubkey::from_str(&args[4]).expect("Invalid counter program ID");
 
     airdrop(&client, &payer.pubkey(), 1e9 as u64);
 
@@ -61,27 +58,33 @@ fn main() {
             AccountMeta {
                 pubkey: counter_program_id,
                 is_signer: false,
-                is_writable: true,
+                is_writable: false,
             },
             AccountMeta {
                 pubkey: solana_sdk::system_program::id(),
                 is_signer: false,
-                is_writable: true,
+                is_writable: false,
             },
         ],
     );
 
     let mut tx = Transaction::new_with_payer(&[ix], Some(&payer.pubkey()));
     let blockhash = client.get_latest_blockhash().unwrap();
-    tx.sign(&[&payer], blockhash);
+    tx.sign(&[&payer, &counter_account], blockhash);
 
     let res = client.send_and_confirm_transaction(&tx);
     res.unwrap();
 
+    let data = client
+        .get_account_data(&counter_account.pubkey())
+        .expect("Failed to fetch account data");
+
+    let counter_data = Counter::try_from_slice(&data).unwrap();
+
+    println!("Counter: {}", counter_data.count);
+
     // Inc
     println!("--- Inc  ---");
-
-    let counter_account = Keypair::new();
 
     let cmd = factory::Cmd::Inc;
 
@@ -109,10 +112,7 @@ fn main() {
     let res = client.send_and_confirm_transaction(&tx);
     res.unwrap();
 
-    // TODO: read state
-    let data = client
-        .get_account_data(&counter_account.pubkey())
-        .expect("Failed to fetch account data");
+    let data = client.get_account_data(&counter_account.pubkey()).unwrap();
 
     let counter_data =
         Counter::try_from_slice(&data).expect("Failed to deserialize");

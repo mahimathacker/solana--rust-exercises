@@ -8,9 +8,6 @@ use solana_program::{
     program::invoke,
     program_error::ProgramError,
     pubkey::Pubkey,
-    rent::Rent,
-    system_instruction,
-    sysvar::Sysvar,
 };
 
 mod counter;
@@ -71,7 +68,7 @@ pub fn init(
             AccountMeta {
                 pubkey: *system_program.key,
                 is_signer: false,
-                is_writable: true,
+                is_writable: false,
             },
         ],
     );
@@ -82,7 +79,6 @@ pub fn init(
             payer.clone(),
             counter_account.clone(),
             system_program.clone(),
-            counter_program.clone(),
         ],
     )?;
 
@@ -98,13 +94,13 @@ pub fn inc(
     let counter_account = next_account_info(account_iter)?;
     let counter_program = next_account_info(account_iter)?;
 
-    let cmd = counter::Cmd::Init;
+    let cmd = counter::Cmd::Inc;
     let ix = Instruction::new_with_borsh(
         *counter_program.key,
         &cmd,
         vec![AccountMeta {
             pubkey: *counter_account.key,
-            is_signer: true,
+            is_signer: false,
             is_writable: true,
         }],
     );
