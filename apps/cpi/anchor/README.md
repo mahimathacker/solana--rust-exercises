@@ -29,16 +29,16 @@ Copy `target/idl/counter.json` into `idls`
 cp target/idl/counter.json idls/
 ```
 
-# Task 2 - Import IDL of the `counter` program into [`lib.rs`](https://github.com/Cyfrin/solana-course/blob/main/apps/auction/anchor/exercise/programs/factory/src/lib.rs)
+# Task 2 - Import IDL of the `counter` program into [`lib.rs`](https://github.com/Cyfrin/solana-course/blob/main/apps/cpi/anchor/exercise/programs/factory/src/lib.rs)
 
 Import IDL of the `counter` program.
 
-```rustl
+```rust
 declare_program!(counter);
 use counter::program::Counter;
 ```
 
-# Task 3 - Implement [`init`](https://github.com/Cyfrin/solana-course/blob/main/apps/auction/anchor/exercise/programs/factory/src/lib.rs)
+# Task 3 - Implement [`init`](https://github.com/Cyfrin/solana-course/blob/main/apps/cpi/anchor/exercise/programs/factory/src/lib.rs)
 - Invoke the function `init` on the `counter` program
 ```rust
 let cpi_accounts = counter::cpi::accounts::Init {
@@ -59,7 +59,7 @@ counter::cpi::init(cpi_ctx)?;
 pub counter_program: Program<'info, Counter>,
 ```
 
-# Task 4 - Implement [`inc`](https://github.com/Cyfrin/solana-course/blob/main/apps/auction/anchor/exercise/programs/factory/src/lib.rs)
+# Task 4 - Implement [`inc`](https://github.com/Cyfrin/solana-course/blob/main/apps/cpi/anchor/exercise/programs/factory/src/lib.rs)
 - Invoke the function `inc` on the `counter` program
 ```rust
 let cpi_accounts = counter::cpi::accounts::Inc {
