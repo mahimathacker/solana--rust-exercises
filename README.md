@@ -35,7 +35,7 @@
     - Keypair must prove existence of keypair before sending transaction to create account, receive SOL, etc
     - Rent
         - Data must be empty if SOL = 0
-- Programs
+- [Programs, instructions and transactions](./notes/program.png)
     - program id - how is it derived?
     - Private key needed for upgrade
     - Pub key needed for user interaction
@@ -43,8 +43,6 @@
     - System program
     - Token program
     - [Limitations](https://solana.com/docs/programs/limitations)
-- Instructions
-- Transactions
 - PDA (program derived address)
     - no private key
 - CPI (cross program invocation)
