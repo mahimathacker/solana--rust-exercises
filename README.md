@@ -124,9 +124,10 @@
     - No auto generated IDL
 
 # Wormhole
-- Overview
+- [Overview](https://wormhole.com/docs/products/messaging/overview/)
     - Guardian network, consensus model
     - VAA and message relaying
+    - [NTT](https://wormhole.com/docs/products/token-transfers/overview/)
 - NTT
     - Overview (SPL to ETH ERC20)
     - CLI setup (NTT 1.6.0)
@@ -197,6 +198,8 @@
                   https://wormholescan.io/#/tx/26ZaFXBfHwSzSQL9xEWmGpJheV4kPcSeAQVbTNizaxeo9Cf8Zq5QDDygXGs6roquLRKhaaWYoG6yFnUyxpNw2s1X?network=Testnet
     - Token transfer demo
 - Deploy AMM + swap using NTT
+    - Deploy EVM AMM (NTT token + token)
+    - Deploy Solana AMM (NTT token + token)
 
 # Resources
 
