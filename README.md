@@ -155,6 +155,7 @@
                 cargo install spl-token-cli
                 spl-token --version
 
+
                 spl-token create-token
                 MINT=...
 
@@ -163,9 +164,7 @@
 
                 spl-token mint $MINT 1000
 
-                https://explorer.solana.com/address/AJA8ApLpXHr9pM2CS85y9g4UgFtXuM71gXU9vGBTmMcB?cluster=devnet
-                mint
-                73Rgt8CZCJez89VtJdRd84kfUPVSprS2Sy5V7Skmq1bU
+                spl-token accounts
                 ```
 
                 ```shell
@@ -208,7 +207,18 @@
     - Token transfer demo
 - Deploy AMM + swap using NTT
     - Deploy EVM AMM (NTT token + token)
+        - [NTT token](https://sepolia.etherscan.io/address/0x0c3d43954B0b312D591739980E0A157621B581BC)
+        - [ERC20 token](https://sepolia.etherscan.io/address/0x140e1Af0bdd3AcE2D2CbE5B76F1De4A40c340308)
+        - [CSAMM](https://sepolia.etherscan.io/address/0xadd4350ce0de140fbb081a4627fde251eb5c1f26)
+        - Deploy NTT token
+        - Deploy ERC20
+        - Deploy CSAMM
+        - Add liquidity
+            - Mint ERC20 and NTT token
+            - ERC20 and NTT token approve CSAMM and add liquidity
     - Deploy Solana AMM (NTT token + token)
+        - [NTT token](https://explorer.solana.com/address/73Rgt8CZCJez89VtJdRd84kfUPVSprS2Sy5V7Skmq1bU?cluster=devnet)
+        - [SPL token](https://explorer.solana.com/address/GK4c9bYHnKEDeKMXfve9xWFQ7byjjaWWdGNrzBW2Geep?cluster=devnet)
 
 # Resources
 
