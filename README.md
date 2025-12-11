@@ -1,5 +1,7 @@
 # solana-course
 
+TODO: clean up
+
 # Course intro
 
 - Solana CLI 3.0
