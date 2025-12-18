@@ -1,9 +1,5 @@
 # solana-course
 
-TODO: clean up
-TODO: update solana?
-TODO: upload exercises
-
 # Course intro
 
 - Solana CLI 3.0
