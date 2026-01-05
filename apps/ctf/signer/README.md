@@ -4,9 +4,9 @@ The oracle program is designed so that only the owner of the oracle account can 
 
 But there is a bug in this program. Find the bug and update the price without the owner's authorization.
 
-# Task - Write your exploit
+# Task 1 - Write your exploit
 
-Write your exploit inside [`test`]
+Write your exploit inside [`test`](https://github.com/Cyfrin/solana-course/blob/main/apps/ctf/signer/exercise/tests/test.rs#L56).
 
 # Build
 
@@ -15,7 +15,8 @@ cargo build-sbf
 ```
 
 # Test with LiteSVM
+Your exploit is successful if the test passes.
+
 ```shell
 cargo test -- --nocapture
 ```
-
