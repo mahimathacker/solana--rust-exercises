@@ -66,7 +66,9 @@ Please refer to this for an in-depth explanation of the content:
 - [Native](./apps/cpi/native)
 
 # Common Bugs
-- [Missing signer](./apps/ctf/signer)
+- [Missing signer check](./apps/ctf/signer)
+- [Missing authorization check](./apps/ctf/auth)
+- [Missing PDA check](./apps/ctf/pda)
 
 # Resources
 
@@ -84,4 +86,5 @@ Please refer to this for an in-depth explanation of the content:
 - [crates.io](https://crates.io/)
 - [Solana playground](https://beta.solpg.io/)
 - [Advanced Solana Vulnerabilities w/ r0bre](https://www.youtube.com/watch?v=sStIk5YyWdc)
+- [Solana Security Risks, Issues & Mitigation Guide](https://cantina.xyz/blog/securing-solana-a-developers-guide)
 - [solana-program 3.0.0 causing issues with edition 2024](https://github.com/anza-xyz/solana-sdk/issues/385)
