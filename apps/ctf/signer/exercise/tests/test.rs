@@ -52,7 +52,6 @@ fn test() {
     assert_eq!(oracle_state.owner, owner.pubkey());
     assert_eq!(oracle_state.price, 123);
 
-    // Update
     // Write your code here - send transaction using the attacker's keypair
 
     let data = svm.get_account(&oracle.pubkey()).unwrap().data;
