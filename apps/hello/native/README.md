@@ -10,8 +10,28 @@ Create an empty folder and complete all tasks below
 
 Generates `.so` file under `target/deploy`
 ```shell
-cargo build-sbf
-```
+curl -L -o ~/Downloads/platform-tools-osx-aarch64.tar.bz2 https://github.com/anza-xyz/platform-tools/releases/download/v1.52/platform-tools-osx-aarch64.tar.bz2
+
+rm -rf ~/.cache/solana/v1.52
+mkdir -p ~/.cache/solana/v1.52/platform-tools
+
+cd ~/.cache/solana/v1.52/platform-tools
+tar -xjf ~/Downloads/platform-tools-osx-aarch64.tar.bz2
+ls ~/.cache/solana/v1.52/platform-tools/
+
+Step 1: Backup the old platform-tools
+bashmv /Users/mahimathacker/.local/share/solana/install/releases/stable-90098d261e2be2f898769d9ee35141597f1a2234/solana-release/bin/platform-tools-sdk/sbf/dependencies/platform-tools /Users/mahimathacker/.local/share/solana/install/releases/stable-90098d261e2be2f898769d9ee35141597f1a2234/solana-release/bin/platform-tools-sdk/sbf/dependencies/platform-tools-v1.51-backup
+Step 2: Link to v1.52
+bashln -s ~/.cache/solana/v1.52/platform-tools /Users/mahimathacker/.local/share/solana/install/releases/stable-90098d261e2be2f898769d9ee35141597f1a2234/solana-release/bin/platform-tools-sdk/sbf/dependencies/platform-tools
+Step 3: Verify
+bashcargo build-sbf --version
+Should now show v1.52!
+Step 4: Build your program
+bashcd /Users/mahimathacker/solana-course/apps/hello/native/exercise
+cargo clean
+
+
+cargo build-sbf --tools-version v1.52```
 
 # Test
 ```shell

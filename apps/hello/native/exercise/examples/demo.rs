@@ -1,4 +1,4 @@
- use solana_client:: rpc_client::RPClient;
+use solana_client::{rpc_client::RpcClient, rpc_config::RpcTransactionConfig};
 
  use solana_sdk:: {
     commitment_config::CommitmentConfig,
@@ -23,13 +23,13 @@ fn main() {
     let args: Vec<String> = std::env::args().collect(); 
 
 // step 3: Load the wallet keypair 
-let keypair_path : PathBuf =  [args[1]].iter().collect(); //First user argument (args[0] is the program name)
+let keypair_path : PathBuf =  [&args[1]].iter().collect(); //First user argument (args[0] is the program name)
 let payer: Keypair = read_keypair_file(keypair_path).expect("Failed to read keypair file");
 
 // step 4: connect to the solana
 
-let rpc_url = String;;from(&args[2]); //Second user argument
-let client = RPClient::new_with_commitment(rpc_url, CommitmentConfig::confirmed()); /* Solana has different levels of "how sure are you this transaction happened":
+let rpc_url = String::from(&args[2]); //Second user argument
+let client = RpcClient::new_with_commitment(rpc_url, CommitmentConfig::confirmed()); /* Solana has different levels of "how sure are you this transaction happened":
 
 processed - Node saw it (might be rolled back)
 confirmed - Supermajority voted on it (pretty safe) ← we use this
@@ -69,7 +69,7 @@ let ix = Instruction::new_with_borsh (
     program_id,
     &(),
     vec![], //Borsh is a serialization format (like JSON but binary). It encodes our data for the blockchain. There's also new_with_bincode and new_with_bytes.
-)
+);
 
 // Step 10: Build and sign the transaction
 
@@ -108,7 +108,7 @@ let tx_info = client
 //Step 13: Parse and print logs
  
 if let Some(meta) = tx_info.transaction.meta {
-     if let Some(logs) = meta.log_messages {
+     if let OptionSerializer::Some(logs) = meta.log_messages {
         println!("Transaction logs:");
         for (i, log) in logs.iter().enumerate() {
             println!("{} : {}", i, log);
