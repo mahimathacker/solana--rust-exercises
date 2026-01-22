@@ -74,13 +74,13 @@ pub fn init(
 
     // Check sell token != buy token
     
-require!(ctx.accounts.mint_sell.key() != ctx.accounts.mint_buy.key(), error::AuctionError::MintMismatch);
+require!(ctx.accounts.mint_sell.key() != ctx.accounts.mint_buy.key(), error::Error::MintMismatch);
     // Check start_price >= end_price
-require!(start_price >= end_price, error::AuctionError::InvalidPriceRange);
+require!(start_price >= end_price, error::Error::InvalidPriceRange);
     // Check now <= start_time < end_time
-require!(now <= start_time && start_time < end_time, error::AuctionEnded::InvalidTimeRange);
+require!(now <= start_time && start_time < end_time, error::Error::InvalidTimeRange);
     // Check sell_amt > 0
-require!(sell_amt > 0, error::AuctionError::InvalidSellAmount);
+require!(sell_amt > 0, error::Error::InvalidSellAmount);
 
     // Send sell token to auction_sell_ata
 lib::transfer(

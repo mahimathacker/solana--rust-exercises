@@ -73,12 +73,11 @@ pub fn buy(ctx: Context<Buy>, max_price: u64) -> Result<()> {
     let auction = &mut ctx.accounts.auction;
 
     // Check auction has started
-    require!(now >= auction.start_time, error::AuctionError::AuctionNotStarted);
+    require!(now >= auction.start_time, error::Error::AuctionNotStarted);
 
     // Check auction has not ended
 
-    require!(now <= auction.end_time, error::AuctionError::AuctionEnded);
-
+    require!(now <= auction.end_time, error::Error::AuctionEnded);
     // Calculate price
 
 let price_decrease = (auction.start_price - auction.end_price)
