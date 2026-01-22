@@ -94,7 +94,7 @@ current_price = start_price - (start_price - end_price) × ───────
     let current_price = auction.start_price - price_decrease;
 
     // Check current price is greater than or equal to end_price
-    require!(current_price >= auction.end_price, error::Error::InvalidPrice);
+    require!(current_price >= auction.end_price, error::Error::InvalidPrices);
 
     // Check current price is less than or equal to max_price
     require!(current_price <= max_price, error::Error::MaxPrice);
