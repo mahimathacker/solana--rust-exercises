@@ -33,10 +33,10 @@ pub fn process_instruction(
 
     match ix {
         Cmd::Lock { amt, exp, bump } => {
-            // Write your code here
+            instructions::lock::lock(program_id, accounts, amt, exp, bump)?;
         }
         Cmd::Unlock { bump } => {
-            // Write your code here
+            instructions::unlock::unlock(program_id, accounts, bump)?;
         }
     }
 

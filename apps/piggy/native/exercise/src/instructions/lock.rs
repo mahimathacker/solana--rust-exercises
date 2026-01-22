@@ -26,24 +26,61 @@ pub fn lock(
     let sys_program = next_account_info(account_iter)?;
 
     // Check dst signed, verifies dst exists and approved to later receive SOL
-
+if !dst.is_signer { 
+    return Err(ProgramError::MissingRequiredSignature);
+}
     // Check that the given account key matches expected PDA
-
+if *pda.key != get_pda(program_id, payer.key, dst.key, bump)? {
+    return Err(ProgramError::InvalidSeeds);
+}
     // Check amt > 0
+ if amt == 0 {
+        return Err(ProgramError::InvalidArgument);
+    }
 
     // Verify expiration is in the future
     let clock = Clock::get()?;
     let now: u64 = clock.unix_timestamp.try_into().unwrap();
-
+    if exp <= now {
+        return Err(ProgramError::InvalidArgument);
+    }
     // 32 + 8
     let space = 40;
     let rent = Rent::get()?.minimum_balance(space);
 
     // Create PDA account
+ invoke_signed (
+        &system_instruction::create_account (
+            payer.key,
+            pda.key,
+            rent,
+            space as u64,
+            program_id,
+        ),
+   
+    &[payer.clone(), pda.clone()],
+    &[&[b"lock", payer.key.as_ref(), dst.key.as_ref(), &[bump]]],
+    )?;
+    let clock = Clock::get()?;
+    let now: u64 = clock.unix_timestamp.try_into().unwrap();
 
     // Transfer SOL from payer to PDA
-
+invoke(
+    &system_instruction::transfer(
+        payer.key,
+        pda.key,
+        amt,
+    ),
+    &[payer.clone(), pda.clone()],
+)?;
     // Create and save lock state into PDA data
+
+    let mut lock_date = pda.data.borrow_mut();
+    let lock  = Lock {
+        dst: *dst.key,
+        exp
+    };
+    lock.serialize(&mut &mut lock_date[..])?;
 
     msg!("Lock created: amt={}, exp={}", amt, exp);
 
