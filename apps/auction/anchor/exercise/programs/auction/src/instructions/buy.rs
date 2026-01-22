@@ -70,20 +70,50 @@ pub struct Buy<'info> {
 pub fn buy(ctx: Context<Buy>, max_price: u64) -> Result<()> {
     let clock = Clock::get()?;
     let now = u64::try_from(clock.unix_timestamp).unwrap();
+    let auction = &mut ctx.accounts.auction;
 
     // Check auction has started
+    require!(now >= auction.start_time, error::AuctionError::AuctionNotStarted);
 
     // Check auction has not ended
 
+    require!(now <= auction.end_time, error::AuctionError::AuctionEnded);
+
     // Calculate price
 
+let price_decrease = (auction.start_price - auction.end_price)
+        *  (now - auction.start_time)
+        / (auction.end_time - auction.start_time); 
+
+        /* 
+        (now - start_time)
+current_price = start_price - (start_price - end_price) × ─────────────────────
+                    (end_time - start_time)
+
+
+        */
+    let current_price = auction.start_price - price_decrease;
+
     // Check current price is greater than or equal to end_price
+    require!(current_price >= auction.end_price, error::AuctionError::InvalidPrice);
 
     // Check current price is less than or equal to max_price
+    require!(current_price <= max_price, error::AuctionError::MaxPrice);
 
     // Calculate amount of buy token to send to seller
 
+    let sell_amount = ctx.accounts.auction.sell_ata.amount;
+    let buy_amount = sell_amount * current_price / (1e6 as u64); //1e6 = 1 × 10^6 = 1,000,000
+
+
     // Send buy token to seller
+    lib::transfer(
+        &ctx.accounts.token_program,
+        &ctx.accounts.buyer_buy_ata,
+        &ctx.accounts.seller_buy_ata,
+        &ctx.accounts.buyer,
+        buy_amount,
+    )?;
 
     // Send sell token to buyer
     let seeds: &[&[u8]] = &[
@@ -93,8 +123,23 @@ pub fn buy(ctx: Context<Buy>, max_price: u64) -> Result<()> {
         &ctx.accounts.mint_buy.key().to_bytes(),
         &[ctx.bumps.auction],
     ];
+lib::transfer_from_pda(
+        &ctx.accounts.token_program,
+        &ctx.accounts.auction_sell_ata,
+        &ctx.accounts.buyer_sell_ata,
+        &ctx.accounts.auction,
+        sell_amount,
+        seeds,
+    )?;
 
     // Close auction_sell_ata
-
+close_account(CpiContext::new_with_signer(
+    ctx.accounts.token_program.to_account_info(),
+    CloseAccount {
+        account: ctx.accounts.auction_sell_ata.to_account_info(),
+        destination: ctx.accounts.seller.to_account_info(),
+        authority: ctx.accounts.auction.to_account_info(),
+    }, &[seeds],
+))?;
     Ok(())
 }

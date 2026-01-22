@@ -4,7 +4,7 @@ pub mod error;
 pub mod instructions;
 pub mod state;
 
-declare_id!("Hp6iqFudQ9vr2Rz9cdXTk2gCHf4eu6Zr8jLyWe6vsPiL");
+declare_id!("9QUtGjgmcPE3G5wLyF6QRgocAtG7dZZ7madGaGYmXVeP");
 
 #[program]
 pub mod auction {
@@ -19,17 +19,24 @@ pub mod auction {
         end_time: u64,
         sell_amt: u64,
     ) -> Result<()> {
-        // Write your code here
+ instructions::init(
+            ctx,
+            start_price,
+            end_price,
+            start_time,
+            end_time,
+            sell_amt,
+        )?;
         Ok(())
     }
 
     pub fn buy(ctx: Context<Buy>, max_price: u64) -> Result<()> {
-        // Write your code here
+        instructions::buy::buy(ctx, max_price)?;
         Ok(())
     }
 
     pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
-        // Write your code here
+        instructions::cancel::cancel(ctx)?;
         Ok(())
     }
 }

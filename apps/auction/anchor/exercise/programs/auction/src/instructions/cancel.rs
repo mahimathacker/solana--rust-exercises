@@ -60,7 +60,26 @@ pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
         &[ctx.bumps.auction],
     ];
 
+     lib::transfer_from_pda(
+        &ctx.accounts.token_program,
+        &ctx.accounts.auction_sell_ata,
+        &ctx.accounts.seller_sell_ata,
+        &ctx.accounts.auction,
+        ctx.accounts.auction_sell_ata.amount,
+        seeds,
+    )?;
     // Close auction_sell_ata
+    close_account(
+        CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            CloseAccount {
+                account: ctx.accounts.auction_sell_ata.to_account_info(),
+                destination: ctx.accounts.payer.to_account_info(),
+                authority: ctx.accounts.auction.to_account_info(),
+            },
+            &[seeds],
+        ),
+    )?;
 
     Ok(())
 }
