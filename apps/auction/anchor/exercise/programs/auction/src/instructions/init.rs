@@ -74,11 +74,11 @@ pub fn init(
 
     // Check sell token != buy token
     
-require!(ctx.accounts.mint_sell.key() != ctx.accounts.mint_buy.key(), error::Error::MintMismatch);
+require!(ctx.accounts.mint_sell.key() != ctx.accounts.mint_buy.key(), error::Error::InvalidMints);
     // Check start_price >= end_price
-require!(start_price >= end_price, error::Error::InvalidPriceRange);
+require!(start_price >= end_price, error::Error::InvalidPrices);
     // Check now <= start_time < end_time
-require!(now <= start_time && start_time < end_time, error::Error::InvalidTimeRange);
+require!(now <= start_time && start_time < end_time, error::Error::InvalidTimes);
     // Check sell_amt > 0
 require!(sell_amt > 0, error::Error::InvalidSellAmount);
 

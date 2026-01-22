@@ -20,4 +20,8 @@ pub enum Error {
     InvalidCurrentPrice,
     #[msg("Max price")]
     MaxPrice,
+    #[msg("Invalid Times")]
+    InvalidTimes,
+
+    
 }

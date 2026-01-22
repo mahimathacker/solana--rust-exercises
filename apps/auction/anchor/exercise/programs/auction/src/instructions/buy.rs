@@ -94,14 +94,14 @@ current_price = start_price - (start_price - end_price) × ───────
     let current_price = auction.start_price - price_decrease;
 
     // Check current price is greater than or equal to end_price
-    require!(current_price >= auction.end_price, error::AuctionError::InvalidPrice);
+    require!(current_price >= auction.end_price, error::Error::InvalidPrice);
 
     // Check current price is less than or equal to max_price
-    require!(current_price <= max_price, error::AuctionError::MaxPrice);
+    require!(current_price <= max_price, error::Error::MaxPrice);
 
     // Calculate amount of buy token to send to seller
 
-    let sell_amount = ctx.accounts.auction.sell_ata.amount;
+    let sell_amount = ctx.accounts.auction_sell_ata.amount;
     let buy_amount = sell_amount * current_price / (1e6 as u64); //1e6 = 1 × 10^6 = 1,000,000
 
 
