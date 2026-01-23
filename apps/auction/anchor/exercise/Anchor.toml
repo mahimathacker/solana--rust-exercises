@@ -1,6 +1,3 @@
-[toolchain]
-package_manager = "yarn"
-
 [features]
 resolution = true
 skip-lint = false
@@ -17,3 +14,10 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "cargo test"
+
+[toolchain]
+anchor_version = "0.31.1"
+solana_version = "3.0.13"
+
+[build]
+tools_version = "v1.52"
