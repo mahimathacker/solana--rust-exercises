@@ -95,11 +95,64 @@ pub fn add_liquidity(
     user_liquidity = amount_a + amount_b
     */
 
+    let user_liquidity = amount_a.checked_add(amount_b).unwrap();
+    let pool_liquidity =  ctx 
+    .accounts
+    .pool_a
+    .amount
+    .checked_add(ctx.accounts.pool_b.amount)
+    .unwrap();
+
+    let supply = ctx.accounts.mint_pool.supply;
+    let shares = if pool_liquidity > 0 {
+        user_liquidity.checked_mul(supply).unwrap() / pool_liquidity
+    } else {    
+        user_liquidity
+    };
+
     // Transfer amount_a from user into pool_a
+
+    if amount_a > 0 {
+        lib::transfer(
+            &ctx.accounts.token_program,
+            &ctx.accounts.payer_a,
+            &ctx.accounts.pool_a,
+            &ctx.accounts.payer,
+            amount_a,
+        )?;
+    }
 
     // Transfer amount_b from user into pool_b
 
+    if amount_b > 0 {
+        lib::transfer(
+            &ctx.accounts.token_program,
+            &ctx.accounts.payer_b,
+            &ctx.accounts.pool_b,
+            &ctx.accounts.payer,
+            amount_b,
+        )?;
+    }
+
     // Mint shares to user's associated token account (payer_liquidity)
 
+    if shares > 0 {
+        let pool_bump = ctx.bumps.pool;
+        let seeds = &[
+            constants::POOL_AUTH_SEED_PREFIX,
+            &ctx.accounts.mint_a.key().to_bytes(),
+            &ctx.accounts.mint_b.key().to_bytes(),
+            &fee.to_le_bytes(),
+            &[pool_bump],
+        ];
+        lib::mint(
+            &ctx.accounts.token_program,
+            &ctx.accounts.mint_pool,
+            &ctx.accounts.payer_liquidity,
+            &ctx.accounts.pool,
+            shares,
+            seeds,
+        )?;
+    };
     Ok(())
 }
