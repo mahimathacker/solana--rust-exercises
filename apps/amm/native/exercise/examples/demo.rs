@@ -15,7 +15,6 @@ use std::thread;
 use std::time::Duration;
 
 use amm::Cmd;
-use amm::state::Pool;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -80,6 +79,7 @@ fn main() {
 
     let pool_a = get_ata(&mint_a, &pool_pda);
     let pool_b = get_ata(&mint_b, &pool_pda);
+
 
     let mut atas_liq = Vec::new();
     for user in users.iter() {

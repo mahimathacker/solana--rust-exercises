@@ -7,6 +7,8 @@ Complete all tasks below
 - Test locally with LiteSVM
 - Deploy locally to `solana-test-validator` and test with Rust script
 
+export KEYPAIR=$(pwd)/target/deploy/amm-keypair.json
+
 *** Hint ***
 See [`instructions/lib.rs`](https://github.com/Cyfrin/solana-course/blob/main/apps/amm/native/exercise/src/instructions/lib.rs) for token helpers.
 

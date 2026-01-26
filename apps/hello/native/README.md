@@ -33,6 +33,16 @@ cargo clean
 
 cargo build-sbf --tools-version v1.52```
 
+Step 1: Install Solana edge version
+bashsh -c "$(curl -sSfL https://release.anza.xyz/edge/install)"
+Step 2: Reload your shell
+bashsource ~/.zshrc
+Step 3: Check new version
+bashsolana --version
+cargo build-sbf --version
+
+
+
 # Test
 ```shell
 cargo test -- --nocapture

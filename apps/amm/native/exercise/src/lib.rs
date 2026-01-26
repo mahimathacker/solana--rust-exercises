@@ -54,7 +54,13 @@ pub fn process_instruction(
             pool_bump,
             mint_pool_bump,
         } => {
-            // Write your code here
+            instructions::init_pool::init_pool(
+                program_id,
+                accounts,
+                fee,
+                pool_bump,
+                mint_pool_bump,
+            )?;
         }
         Cmd::AddLiquidity {
             fee,
@@ -63,7 +69,15 @@ pub fn process_instruction(
             pool_bump,
             mint_pool_bump,
         } => {
-            // Write your code here
+            instructions::add_liquidity::add_liquidity(
+                program_id,
+                accounts,
+                fee,
+                amount_a,
+                amount_b,
+                pool_bump,
+                mint_pool_bump,
+            )?;     
         }
         Cmd::RemoveLiquidity {
             fee,
@@ -73,7 +87,16 @@ pub fn process_instruction(
             pool_bump,
             mint_pool_bump,
         } => {
-            // Write your code here
+            instructions::remove_liquidity::remove_liquidity(
+                program_id,
+                accounts,
+                fee,
+                shares,
+                min_amount_a,
+                min_amount_b,
+                pool_bump,
+                mint_pool_bump,
+            )?;
         }
         Cmd::Swap {
             fee,
@@ -82,9 +105,17 @@ pub fn process_instruction(
             min_amount_out,
             pool_bump,
         } => {
-            // Write your code here
-        }
-    }
 
+            instructions::swap::swap(      
+                program_id,
+                accounts,
+                fee,
+                a_for_b,
+                amount_in,
+                min_amount_out,
+                pool_bump,
+            )?;
+    }
+}
     Ok(())
 }
