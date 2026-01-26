@@ -49,8 +49,40 @@ pub fn init(
     let counter_program = next_account_info(account_iter)?;
     let system_program = next_account_info(account_iter)?;
 
-    // Invoke Init on the counter program
 
+    let cmd = counter::Cmd::Init;
+
+    let ix = Instruction::new_with_borsh(
+        *counter_program.key,
+        &cmd,
+        vec![
+            AccountMeta {
+                pubkey: *payer.key,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: *counter_account.key,
+                is_signer: true,
+                is_writable: true,
+            },
+
+            AccountMeta {
+                pubkey: *system_program.key,
+                is_signer: false,
+                is_writable: false,
+            },
+        ],
+    );
+
+    invoke(
+        &ix,
+        &[
+            payer.clone(),
+            counter_account.clone(),
+            system_program.clone(),
+        ],
+    )?;
     Ok(())
 }
 
@@ -63,7 +95,19 @@ pub fn inc(
     let counter_account = next_account_info(account_iter)?;
     let counter_program = next_account_info(account_iter)?;
 
-    // Invoke Inc on the counter program
 
+    let cmd = counter::Cmd::Inc;
+    let ix = Instruction::new_with_borsh(
+        *counter_program.key,
+        &cmd,
+        vec![
+            AccountMeta {
+                pubkey: *counter_account.key,
+                is_signer: false,
+                is_writable: true,
+            }],
+    );
+
+    invoke(&ix, &[counter_account.clone()])?;
     Ok(())
 }
