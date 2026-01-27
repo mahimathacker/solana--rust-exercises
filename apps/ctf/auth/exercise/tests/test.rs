@@ -53,7 +53,7 @@ fn test() {
     assert_eq!(oracle_state.price, 123);
 
     // Write your code here - send transaction using the attacker's keypair
-    let update_ix = Instruction {
+    let update_ix = Instruction{
         program_id,
         accounts: vec![
             AccountMeta::new(oracle.pubkey(), false),
